@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('books-nest')
 export class BooksController {
@@ -12,9 +13,14 @@ export class BooksController {
     return this.booksService.create(createBookDto);
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   findAll() {
-    return this.booksService.findAll();
+    try {
+      return this.booksService.findAll();
+    } catch (error) {
+      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+    }
   }
 
   @Get(':id')
